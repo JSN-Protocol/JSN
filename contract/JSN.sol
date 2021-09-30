@@ -19,7 +19,7 @@ contract JSN is ERC20Burnable, Ownable {
         _mint(0xff098373a0a8a36cb2e30b975328B2d8E218b22c, 980000 * 10**18);  //initialamount = 980,000
     }
 
-    function transfer(address to, uint256 amount)
+    function transfer(address recipient, uint256 amount)
         public
         override
         returns (bool)
@@ -37,8 +37,8 @@ contract JSN is ERC20Burnable, Ownable {
     }
 
     function transferFrom(
-        address from,
-        address to,
+        address sender,
+        address recipient,
         uint256 amount
     ) public override returns (bool) {
         if (lockList[sender] == 1) {
