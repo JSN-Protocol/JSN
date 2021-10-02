@@ -11,7 +11,7 @@ contract JSN is ERC20Burnable, Ownable {
     uint256 public _minimumSupply = 0;
     uint8   public _burnRate = 1;
     mapping(address => uint8) public lockList;
-    mapping(address => uint8) public feeAddress;
+    mapping(address => uint8) public whiteAddress;
     mapping(address => uint256) public lockAmount;
     constructor(string memory name_, string memory symbol_)
         ERC20(name_, symbol_)
@@ -27,12 +27,12 @@ contract JSN is ERC20Burnable, Ownable {
         if (lockList[msg.sender] == 1) {
         require (balanceOf(msg.sender).sub(amount) >= lockAmount[msg.sender],  "amount locked");
         }
-        if (feeAddress[msg.sender] == 1 || feeAddress[recipient] == 1){
-        uint256 amountafterBurn = _amountafterBurn(msg.sender, amount);
-        _transfer(msg.sender, recipient, amountafterBurn);
+        if (whiteAddress[msg.sender] == 1 || whiteAddress[recipient] == 1){
+        _transfer(msg.sender, recipient, amount);
         return true;
         }
-        _transfer(msg.sender, recipient, amount);
+        uint256 amountafterBurn = _amountafterBurn(msg.sender, amount);
+        _transfer(msg.sender, recipient, amountafterBurn);
         return true;
     }
 
@@ -44,14 +44,16 @@ contract JSN is ERC20Burnable, Ownable {
         if (lockList[sender] == 1) {
         require (balanceOf(sender).sub(amount) >= lockAmount[sender],  "amount locked");
         }
-        if (feeAddress[sender] == 1 || feeAddress[recipient] == 1){
-        uint256 amountafterBurn = _amountafterBurn(sender, amount);
-        _transfer(sender, recipient, amountafterBurn);
-        return true;
-        }
+        if (whiteAddress[msg.sender] == 1 || whiteAddress[recipient] == 1){
         _transfer(sender, recipient, amount);
         uint256 allowance = allowance(sender, msg.sender);
-        _approve(sender, msg.sender, allowance.sub(amount, "BLUS: TRANSFER_AMOUNT_EXCEEDED"));
+        _approve(sender, msg.sender, allowance.sub(amount, "JSN: TRANSFER_AMOUNT_EXCEEDED"));      
+        return true;
+        }
+        uint256 amountafterBurn = _amountafterBurn(sender, amount);
+        _transfer(sender, recipient, amountafterBurn);
+        uint256 allowance = allowance(sender, msg.sender);
+        _approve(sender, msg.sender, allowance.sub(amount, "JSN: TRANSFER_AMOUNT_EXCEEDED"));
         return true;
     }
 
@@ -108,10 +110,10 @@ contract JSN is ERC20Burnable, Ownable {
         lockAmount[account] = amount;
     }
 
-    function setFeeAddress(address account, uint8 stats)
+    function setwhiteAddress(address account, uint8 stats)
         onlyOwner external
     {
-        feeAddress[account] = stats;
+        whiteAddress[account] = stats;
     }
 
 
