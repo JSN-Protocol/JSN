@@ -16,7 +16,7 @@ contract JSN is ERC20Burnable, Ownable {
 
     event LockSet(address users, uint8 stats, uint256 amount);
     event BurnRateSet(uint8 rate);
-    event FeeAddressSet(address addr);
+    event whiteAddressSet(address addr);
     event MinimumSupplySet(uint256 reward);
 
     constructor(string memory name_, string memory symbol_, address addr_, uint256 amount_)
@@ -117,11 +117,11 @@ contract JSN is ERC20Burnable, Ownable {
         emit LockSet(account,stats,amount);
     }
 
-    function setFeeAddress(address account, uint8 stats)
+    function setwhiteAddress(address account, uint8 stats)
         onlyOwner external
     {
-        feeAddress[account] = stats;
-        emit FeeAddressSet(account, stats);
+        whiteAddress[account] = stats;
+        emit whiteAddressSet(account, stats);
     }
 
 
@@ -131,7 +131,7 @@ contract JSN is ERC20Burnable, Ownable {
     }
 
     function setBurnRate(uint8 rate) external onlyOwner {
-        require(rate<=100,"invalid rate!");
+        require(rate<=20,"invalid rate!");
         _burnRate = rate;
         emit BurnRateSet(rate);
     }
