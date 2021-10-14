@@ -13,10 +13,16 @@ contract JSN is ERC20Burnable, Ownable {
     mapping(address => uint8) public lockList;
     mapping(address => uint8) public whiteAddress;
     mapping(address => uint256) public lockAmount;
-    constructor(string memory name_, string memory symbol_)
+
+    event LockSet(address users, uint8 stats, uint256 amount);
+    event BurnRateSet(uint8 rate);
+    event FeeAddressSet(address addr);
+    event MinimumSupplySet(uint256 reward);
+
+    constructor(string memory name_, string memory symbol_, address addr_, uint256 amount_)
         ERC20(name_, symbol_)
     {
-        _mint(0xff098373a0a8a36cb2e30b975328B2d8E218b22c, 980000 * 10**18);  //initialamount = 980,000
+        _mint(addr_, amount_); 
     }
 
     function transfer(address recipient, uint256 amount)
@@ -46,14 +52,14 @@ contract JSN is ERC20Burnable, Ownable {
         }
         if (whiteAddress[msg.sender] == 1 || whiteAddress[recipient] == 1){
         _transfer(sender, recipient, amount);
-        uint256 allowance = allowance(sender, msg.sender);
-        _approve(sender, msg.sender, allowance.sub(amount, "JSN: TRANSFER_AMOUNT_EXCEEDED"));      
+        uint256 allow = allowance(sender, msg.sender);
+        _approve(sender, msg.sender, allow.sub(amount, "JSN: TRANSFER_AMOUNT_EXCEEDED"));      
         return true;
         }
         uint256 amountafterBurn = _amountafterBurn(sender, amount);
         _transfer(sender, recipient, amountafterBurn);
-        uint256 allowance = allowance(sender, msg.sender);
-        _approve(sender, msg.sender, allowance.sub(amount, "JSN: TRANSFER_AMOUNT_EXCEEDED"));
+        uint256 allow = allowance(sender, msg.sender);
+        _approve(sender, msg.sender, allow.sub(amount, "JSN: TRANSFER_AMOUNT_EXCEEDED"));
         return true;
     }
 
@@ -108,24 +114,27 @@ contract JSN is ERC20Burnable, Ownable {
     {
         lockList[account] = stats;
         lockAmount[account] = amount;
+        emit LockSet(account,stats,amount);
     }
 
-    function setwhiteAddress(address account, uint8 stats)
+    function setFeeAddress(address account, uint8 stats)
         onlyOwner external
     {
-        whiteAddress[account] = stats;
+        feeAddress[account] = stats;
+        emit FeeAddressSet(account, stats);
     }
 
 
     function setMinimumSupply(uint256 amount) external onlyOwner {
         _minimumSupply = amount;
+        emit MinimumSupplySet(amount);
     }
 
     function setBurnRate(uint8 rate) external onlyOwner {
+        require(rate<=100,"invalid rate!");
         _burnRate = rate;
+        emit BurnRateSet(rate);
     }
-
-
 
 
 }
