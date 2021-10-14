@@ -1,2 +1,2 @@
-# UniverseProtocol
-Universe protocol
+# JSN
+JSN
